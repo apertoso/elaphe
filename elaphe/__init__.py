@@ -1,5 +1,6 @@
 # coding: utf-8
 from bases import Barcode
+from version import VERSION as __version__
 
 DEFAULT_PLUGINS = [
     'elaphe.ean', 'elaphe.upc', 'elaphe.code128', 'elaphe.code39',
