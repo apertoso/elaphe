@@ -24,7 +24,7 @@ class JapanPost(Barcode):
     <BLANKLINE>
     >>> bc.render('1231FZ13XHS', options=dict(includetext=False), scale=2, margin=1) # doctest: +ELLIPSIS
     <PIL.EpsImagePlugin.EpsImageFile instance at ...>
-    >>> #_.show()
+    >>> # _.show()
     """
     codetype = 'japanpost'
     aliases = ()

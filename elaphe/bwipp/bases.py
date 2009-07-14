@@ -127,9 +127,7 @@ class Renderer(object):
         <BLANKLINE>
         <BLANKLINE>
         <BLANKLINE>
-        % --BEGIN ENCODER ean13--
         ...
-        % --END DISPATCHER--
         <BLANKLINE>
         <BLANKLINE>
         <BLANKLINE>

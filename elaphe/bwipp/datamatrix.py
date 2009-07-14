@@ -52,7 +52,7 @@ class DataMatrix(Barcode):
     <BLANKLINE>
     >>> bc.render('^142^164^186', options=dict(columns=32, rows=32), margin=1, scale=2.0) # doctest: +ELLIPSIS
     <PIL.EpsImagePlugin.EpsImageFile instance at ...>
-    >>> #_.show()
+    >>> # _.show()
     """
     codetype = 'datamatrix'
     aliases = ('data matrix', 'data-matrix', 'data_matrix')
