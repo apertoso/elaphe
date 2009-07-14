@@ -6,7 +6,7 @@ class Code11(Barcode):
     """
     >>> bc = Code11()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Code11 object at ...>
+    <...Code11 object at ...>
     >>> print bc.render_ps_code('0123456789') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

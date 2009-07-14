@@ -5,7 +5,7 @@ class MsiModifiedPlessey(Barcode):
     """
     >>> bc = MsiModifiedPlessey()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.MsiModifiedPlessey object at ...>
+    <...MsiModifiedPlessey object at ...>
     >>> print bc.render_ps_code('0123456789') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

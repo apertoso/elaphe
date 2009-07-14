@@ -6,7 +6,7 @@ class Phamacode(Barcode):
     """
     >>> bc = Phamacode()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Phamacode object at ...>
+    <...Phamacode object at ...>
     >>>
     >>> print bc.render_ps_code('117480') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0

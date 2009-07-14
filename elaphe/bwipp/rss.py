@@ -6,7 +6,7 @@ class Rss14(Barcode):
     """
     >>> bc = Rss14()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Rss14 object at ...>
+    <...Rss14 object at ...>
     >>> print bc.render_ps_code('24012345678905') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)
@@ -76,7 +76,7 @@ class RssLimited(Barcode):
     """
     >>> bc = RssLimited()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.RssLimited object at ...>
+    <...RssLimited object at ...>
     >>> print bc.render_ps_code('00978186074271') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)
@@ -113,7 +113,7 @@ class RssExpanded(Barcode):
     """
     >>> bc = RssExpanded()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.RssExpanded object at ...>
+    <...RssExpanded object at ...>
     >>> print bc.render_ps_code('000000010011001010100001000000010000') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

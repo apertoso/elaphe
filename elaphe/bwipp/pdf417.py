@@ -6,7 +6,7 @@ class Pdf417(Barcode):
     """
     >>> bc = Pdf417()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Pdf417 object at ...>
+    <...Pdf417 object at ...>
     >>> print bc.render_ps_code('^453^178^121^239') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

@@ -9,7 +9,7 @@ class Code128(Barcode):
     """
     >>> bc = Code128()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Code128 object at ...>
+    <...Code128 object at ...>
     >>>
     # >>> print bc.render_ps_code('^104^102Count^0990123456789^101!') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0

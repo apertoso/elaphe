@@ -179,7 +179,7 @@ class QrCode(Barcode):
     """
     >>> bc = QrCode()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.QrCode object at ...>
+    <...QrCode object at ...>
     >>> print bc.render_ps_code('000100000010000000001100010101100110000110000') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

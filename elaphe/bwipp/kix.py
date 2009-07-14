@@ -6,7 +6,7 @@ class Kix(Barcode):
     """
     >>> bc = Kix()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Kix object at ...>
+    <...Kix object at ...>
     >>> print bc.render_ps_code('1231FZ13XHS') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

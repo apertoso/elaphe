@@ -6,7 +6,7 @@ class Interleaved2of5(Barcode):
     """
     >>> bc = Interleaved2of5()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Interleaved2of5 object at ...>
+    <...Interleaved2of5 object at ...>
     >>> print bc.render_ps_code('24012345678905') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

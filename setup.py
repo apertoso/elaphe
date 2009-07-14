@@ -24,6 +24,7 @@ setup_params = dict(
     zip_safe=False,
     dependency_links = ["http://dist.repoze.org"], #PIL as egg
     install_requires = install_requires,
+    test_suite = 'tests.build_tests',
     tests_require=test_requires,
     extras_require=extra_requires,
     classifiers=[

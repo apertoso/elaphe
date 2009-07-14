@@ -6,7 +6,7 @@ class UpcA(Barcode):
     """
     >>> bc = UpcA()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.UpcA object at ...>
+    <...UpcA object at ...>
     >>> print bc.render_ps_code('78858101497') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)
@@ -54,7 +54,7 @@ class UpcE(Barcode):
     """
     >>> bc = UpcE()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.UpcE object at ...>
+    <...UpcE object at ...>
     >>> print bc.render_ps_code('0123456') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

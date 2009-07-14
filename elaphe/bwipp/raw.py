@@ -5,7 +5,7 @@ class Raw(Barcode):
     """
     >>> bc = Raw()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Raw object at ...>
+    <...Raw object at ...>
     >>> print bc.render_ps_code('331132131313411122131311333213114131131221323') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

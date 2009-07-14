@@ -5,7 +5,7 @@ class Plessey(Barcode):
     """
     >>> bc = Plessey()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.Plessey object at ...>
+    <...Plessey object at ...>
     >>> print bc.render_ps_code('012345ABCD') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

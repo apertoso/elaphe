@@ -34,7 +34,7 @@ class DataMatrix(Barcode):
     """
     >>> bc = DataMatrix()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.DataMatrix object at ...>
+    <...DataMatrix object at ...>
     >>> print bc.render_ps_code('^142^164^186') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)

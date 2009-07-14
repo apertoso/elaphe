@@ -5,7 +5,7 @@ class RoyalMail(Barcode):
     """
     >>> bc = RoyalMail()
     >>> bc # doctest: +ELLIPSIS
-    <__main__.RoyalMail object at ...>
+    <...RoyalMail object at ...>
     >>> print bc.render_ps_code('LE28HS9Z') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)
