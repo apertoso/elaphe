@@ -2,86 +2,152 @@
 """Various checkdigits.
 """
 import string
+from codec import CharMapCodec, Code128Codec
+
 
 def charmap(chars):
+    """
+    >>> charmap('ABC')
+    ({'A': 0, 'C': 2, 'B': 1}, {0: 'A', 1: 'B', 2: 'C'})
+    """
     forward_map = dict(t[::-1] for t in enumerate(chars)) # char to int
     reverse_map = dict(t for t in enumerate(chars)) # int to char
     return forward_map, reverse_map
 
+
 def modcomp(b, n):
+    """Computes complemented modulus (b, n).
+
+    >>> (modcomp(1, 1), modcomp(1, 2), modcomp(1, 3)), (modcomp(2, 1), modcomp(2, 2), modcomp(2, 3))
+    ((0, 0, 0), (1, 0, 1))
+    """
     return (b-n%b)%b
 
-def modulus_43(s):
-    """Modulus-43, used in Code39.
-    
-    >>> modulus_43('ABCD1234+')
-    'B'
-    
+
+class CheckDigit(object):
+    """Base class for checkdigit systems.
     """
-    table_src = string.digits+string.ascii_uppercase+'-. $/+%'
-    fwd, rev = charmap(table_src)
-    return rev[sum(fwd[c] for c in s.upper()) % 43]
+    def __init__(self, *args, **kwargs):
+        self.message_codec = getattr(self, 'MESSAGE_CODEC', self.get_message_codec())
+
+    def get_message_codec(self):
+        return NotImplemented
+
+    def normalize_message(self, message):
+        return message
+
+    def compute(self, ordinals, **kwargs):
+        raise NotImplemented
+
+    def as_ordinal(self, message, errors=None, **kwargs):
+        return self.compute(self.message_codec.decode(self.normalize_message(message), errors, **kwargs))
+
+    def as_char(self, message, errors=None, **kwargs):
+        return ''.join(self.message_codec.encode([self.as_ordinal(message, errors, **kwargs)]))
 
 
-def modulus_10_w3(s):
+class Modulus43(CheckDigit):
+    """Modulus-43, used in Code39.
+
+    >>> Modulus43().as_ordinal('ABCD1234+')
+    11
+    >>> Modulus43().as_char('B')
+    'B'
+
+    """
+    MESSAGE_CODEC = CharMapCodec(string.digits+string.ascii_uppercase+'-. $/+%')
+
+    def nomalize_message(self, message):
+        return (c.upper() for c in message)
+
+    def compute(self, ordinals, **kwargs):
+        return sum(ordinals)%43
+
+modulus_43 = Modulus43().as_char
+
+
+class NumericOnlyCheckDigit(CheckDigit):
+    MESSAGE_CODEC = CharMapCodec(string.digits)
+
+
+class Modulus10W3(NumericOnlyCheckDigit):
     """Modulus 10, weighted with 3. Used in JAN ITF and NW-7.
     
-    >>> modulus_10_w3('490123456789')
+    >>> Modulus10W3().as_char('490123456789')
     '4'
 
     """
-    table_src = string.digits
-    fwd, rev = charmap(table_src)
-    return rev[modcomp(10, sum(fwd[c]*(1+2*(i%2)) for i, c in enumerate(list(s))))]
+    def compute(self, ordinals, **kwargs):
+        return modcomp(10, sum(ordinal*(1+2*(i%2)) for i, ordinal in enumerate(ordinals)))
+
+modulus_10_w3 = Modulus10W3().as_char
 
 
-def modulus_16(s):
+class Modulus16(CheckDigit):
     """Modulus 16, used in NW-7. Argument should include start/stop/checkdigit.
     
-    >>> modulus_16('A19+1243*B')
+    >>> Modulus16().as_char('A19+1243*B')
     ':'
 
     """
-    table_src = string.digits+'-$:/.+ABCD'
-    fwd, rev = charmap(table_src)
-    return rev[modcomp(16, sum(fwd[c] for i, c in enumerate(list(s)) if i!=len(s)-2))]
+    MESSAGE_CODEC = CharMapCodec(string.digits+'-$:/.+ABCD')
+
+    def normalize_message(self, message):
+        list_chars = list(message)
+        return (c.upper() for i, c in enumerate(list_chars) if i!=len(list_chars)-2)
+
+    def compute(self, ordinals, **kwargs):
+        return modcomp(16, sum(ordinals))
+
+modulus_16 = Modulus16().as_char
 
 
-def modulus_11(s):
+class Modulus11(NumericOnlyCheckDigit):
     """Modulus 11, used in NW-7. Argucment should exclude start/stop.
     
-    >>> modulus_11('2431245*')
+    >>> Modulus11().as_char('2431245*')
     '6'
 
     """
-    table_src = string.digits
-    fwd, rev = charmap(table_src)
-    return rev[modcomp(11, sum(fwd[c]*(7-i) for i, c in enumerate(list(s[:6]))))]
+    def normalize_message(self, message):
+        return message[:6]
+
+    def compute(self, ordinals, **kwargs):
+        return modcomp(11, sum(ordinal*(7-i) for i, ordinal in enumerate(ordinals)))
+
+modulus_11 = Modulus11().as_char
 
 
-def modulus_10_w2(s):
+class Modulus10w2(NumericOnlyCheckDigit):
     """Modulus 10, weighted with 2. Used in NW-7. Argument should exclude start/stop/checkdigit.
 
     >>> modulus_10_w2('938745343')
     '7'
 
     """
-    table_src = string.digits
-    fwd, rev = charmap(table_src)
-    return rev[modcomp(10, sum(fwd[c]*(2-(i%2)) for i, c in enumerate(list(s))))]
+    def compute(self, ordinals, **kwargs):
+        return modcomp(10, sum(ordinal*(2-(i%2)) for i, ordinal in enumerate(ordinals)))
+
+modulus_10_w2 = Modulus10w2().as_char
 
 
-def check_DR_7(s):
+class CheckDR7(NumericOnlyCheckDigit):
     """7-check DR checkdigit, used in NW-7. Argument should exclude start/stop/checkdigit.
 
     >>> check_DR_7('8745343')
     '5'
 
     """
-    return str(int(s, 10)%7)
+    def as_ordinal(self, message, errors=None, **kwargs):
+        return int(''.join(message), 10)%7
+
+    def as_char(self, message, errors=None, **kwargs):
+        return ''.join(self.message_codec.encode([self.as_ordinal(message, errors, **kwargs)]))
+
+check_DR_7 = CheckDR7().as_char
 
 
-def weighted_modulus_11(s):
+class WeightedModulus11(NumericOnlyCheckDigit):
     """Weighted modulus 11, used in NW-7. Argument should exclude start/stop.
 
     >>> weighted_modulus_11('5012924346')
@@ -90,114 +156,58 @@ def weighted_modulus_11(s):
     '1'
 
     """
-    table_src = string.digits
-    fwd, rev = charmap(table_src)
-    weight_1 = [6, 3, 5, 9, 10, 7, 8, 4, 5, 3, 6, 2]
-    weight_2 =  [5, 8, 6, 2, 10, 4, 3, 7, 6, 8, 5, 9]
-    mod = sum(fwd[c]*weight_1[-1-i] for i, c in enumerate(list(s[::-1])))%11
-    if mod==0:
-        return rev[0]
-    elif mod==1:
-        return rev[modcomp(11, sum(fwd[c]*weight_2[-1-i] for i, c in enumerate(list(s[::-1]))))]
-    else:
-        return rev[(11-mod)%11]
+    WEIGHT_1 = [6, 3, 5, 9, 10, 7, 8, 4, 5, 3, 6, 2]
+    WEIGHT_2 =  [5, 8, 6, 2, 10, 4, 3, 7, 6, 8, 5, 9]
 
-def runes(s):
+    def compute(self, ordinals, **kwargs):
+        olist = list(ordinals)
+        mod = sum(ordinal*self.WEIGHT_1[-1-i] for i, ordinal in enumerate(olist[::-1]))%11
+        if mod==0:
+            return 0
+        elif mod==1:
+            return modcomp(11, sum(ordinal*self.WEIGHT_2[-1-i] for i, ordinal in enumerate(olist[::-1])))
+        else:
+            return modcomp(11, mod)
+
+weighted_modulus_11 = WeightedModulus11().as_char
+
+
+class Runes(NumericOnlyCheckDigit):
     """RUNES modulus 10, weighted with 2. Used in NW-7.
 
     >>> runes('938745343')
     '5'
 
     """
-    table_src = string.digits
-    fwd, rev = charmap(table_src)
-    return rev[modcomp(10, sum(sum(divmod(fwd[c]*(2-(i%2)), 10)) for i, c in enumerate(list(s))))]
+    def compute(self, ordinals, **kwargs):
+        return modcomp(10, sum(sum(divmod(ordinal*(2-(i%2)), 10)) for i, ordinal in enumerate(ordinals)))
+
+runes = Runes().as_char
 
 
-ASCII_7BITS = ''.join(chr(i) for i in range(128))
-code128_A_tbl = ASCII_7BITS[32:96] + ASCII_7BITS[:32]
-code128_B_tbl = ASCII_7BITS[32:128]
-
-def code128_ords(s):
-    """Converts a string into a sequence of code128 ordinals.
-
-    >>> list(code128_ords('^103AZ_^^_\\0\\1\\2'))
-    [('A', 103), ('A', 33), ('A', 58), ('A', 63), ('A', 62), ('A', 63), ('A', 64), ('A', 65), ('A', 66)]
-    >>> list(code128_ords('^104AZ_^^_\\x60ab'))
-    [('B', 104), ('B', 33), ('B', 58), ('B', 63), ('B', 62), ('B', 63), ('B', 64), ('B', 65), ('B', 66)]
-    
-    >>> list(code128_ords('^105^102^'))
-    [('C', 105), ('C', 102)]
-
-    >>> list(code128_ords('^105^102123456^100A1'))
-    [('C', 105), ('C', 102), ('C', 12), ('C', 34), ('C', 56), ('B', 100), ('B', 33), ('B', 17)]
-
-    """
-    code = None
-    escape = False
-    carry = ''
-    for c in s:
-        if escape:
-            if c=='^':
-                escape, carry = False, ''
-                yield code, 62
-            elif c in '0123456789':
-                carry+=c
-                ord_ = int(carry, 10)
-                if ord_ in range(96, 108):
-                    escape, carry = False, ''
-                    if ord_ in (99, 105):
-                        code = 'C'
-                    if ord_ in (100, 104):
-                        code = 'B'
-                    elif ord_ in (101, 103):
-                        code = 'A'
-                    yield code, ord_
-                if ord_ >=108:
-                    raise ValueError(u'%d is not allowed for Code128' %ord_)
-            else:
-                raise ValueError
-        else:
-            if c=='^': # escape in
-                escape = True
-                carry = ''
-                continue
-            else:
-                if code == 'A':
-                    ord_ = code128_A_tbl.index(c)
-                elif code == 'B':
-                    ord_ = code128_B_tbl.index(c)
-                elif code == 'C':
-                    if carry:
-                        ord_ = int(carry+c, 10)
-                        carry = ''
-                    else:
-                        carry = c
-                        continue
-                else:
-                    raise ValueError(u'Invalid code: %s' %code)
-                yield code, ord_
-    if carry:
-        raise ValueError(u'Unexpected end of codestring, residue=%s' %carry)
-
-
-def modulus_103(s):
+class Modulus103(CheckDigit):
     """Modulus 103, used in code128. Code should include start char and exclude stop char.
 
     >>> modulus_103('^105^102123456^100A1')
-    'C'
+    '35'
+
     """
-    csum = 0
-    for i, (code, ord_) in enumerate(code128_ords(s)):
-        if i==0:
-            csum = ord_
-        else:
-            csum += i*ord_
-    modulated_ord = csum%103
-    if code in 'AB':
-        return {'A': code128_A_tbl, 'B': code128_B_tbl}[code][modulated_ord]
-    else:
-        return str(modulated_ord)
+    MESSAGE_CODEC = Code128Codec()
+
+    def compute(self, ordinals, **kwargs):
+        csum = 0
+        for i, ordinal in enumerate(ordinals):
+            if i==0:
+                csum = ordinal
+            else:
+                csum += i*ordinal
+        return csum%103
+
+    def as_char(self, message, code=None, errors=None, **kwargs):
+        return ''.join(self.message_codec.encode([self.as_ordinal(message, errors, **kwargs)], code=code))
+    
+_modulus_103 = Modulus103()
+modulus_103 = lambda s: _modulus_103.as_char(s, code='C')
 
 
 if __name__=='__main__':
