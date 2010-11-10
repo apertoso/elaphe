@@ -58,3 +58,41 @@ class Translation(object):
         return NotImplemented
 
 
+class CharMapTranslation(Translation):
+    """
+    Translation using character map.
+
+    """
+    def __init__(self, chars, offset=0, skip_char=None):
+        """Constructor.
+
+        Accepts a positional argument ``char``, and two optional
+        parameters: ``offset`` and ``skip_char``.
+        """
+        slef.allowed_chars = chars
+        if skip_char:
+            self.allowed_chars.replace(skip_char, '')
+        self.map = dict(
+            (idx+offset, char) for idx, char in enumerate(chars)
+            if char!=skip_char)
+
+    def translate_chars(self, chars):
+        """
+        Performs per-char translation.
+
+        Multiple characters in chars are not allowed.
+        """
+        if len(chars)>1:
+            raise TranslationError(u'Multiple characters not allowed.')
+        elif len(chars)<1:
+            return
+        # else
+        char = chars[0]
+        if char not in self.map:
+            raise TranslationError(
+                u'%(char)s not in allowed chars: %(allowed_chars)s' 
+                %(char, self.allowed_chars))
+        # else
+        return self.map.get(char)
+        
+
