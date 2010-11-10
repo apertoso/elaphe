@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2010 Yasushi Masuda. All rights reserved.
 """
 Symbology-specific message translations.
 
@@ -7,6 +8,7 @@ ordinals, to support alphabets/escape-sequences for individual
 symbologies.
 
 """
+import string
 
 class TranslationError(ValueError):
     """
@@ -127,7 +129,7 @@ class CharMapTranslation(Translation):
     >>> list(cmt.translate('1234xx', on_error='#'))
     [2, 3, 4, 5, '#', '#']
 
-    Offsets and skip_char are for tweaking non-ordinal alphabets.
+    ``offset`` and ``skip_char`` are for non-ordinal alphabets.
     >>> cmt = CharMapTranslation('0*1*2*3*4', offset=100, skip_char='*')
     >>> sorted(cmt.map.items()) # doctest: +ELLIPSIS
     [('0', 100), ('1', 102), ('2', 104), ('3', 106), ('4', 108)]
@@ -135,7 +137,8 @@ class CharMapTranslation(Translation):
     [104, 108, 102, 106]
 
     """
-    def __init__(self, chars, offset=0, skip_char=None, **kwargs):
+    def __init__(self, chars, offset=0, skip_char=None, 
+                 **kwargs):
         """
         Constructor.
 
@@ -167,20 +170,6 @@ class CharMapTranslation(Translation):
                 %dict(char=char, allowed_chars=self.allowed_chars))
         # else
         return self.map.get(char)
-
-
-def cap_escape(s):
-    """
-    Converts string to cap-escaped printables.
-    
-    >>> cap_escape('abcdef')
-    'abcdef'
-    >>> cap_escape('\\1\\2\\3\\10\\20\\30\\110\\120\\130\\200\\210\\220\\240')
-    '^1^2^3^8^16^24HPX^128^136^144^160'
-    """
-    from string import printable
-    return ''.join(c if c in printable else '^'+str(ord(c))
-                   for c in s)
 
 
 class Code128Translation(Translation):
@@ -216,6 +205,20 @@ class Code128Translation(Translation):
     CODE_A_TABLE = ASCII_7BITS[32:96] + ASCII_7BITS[:32]
     CODE_B_TABLE = ASCII_7BITS[32:128]
     CODE_TABLES = dict(A=CODE_A_TABLE, B=CODE_B_TABLE)
+
+    @staticmethod
+    def cap_escape(s):
+        """
+        Converts string to cap-escaped printables.
+
+        >>> cap_escape = Code128Translation.cap_escape
+        >>> cap_escape('abcdef')
+        'abcdef'
+        >>> cap_escape('\\1\\2\\3\\10\\20\\30\\110\\120\\130\\200\\210\\220\\240')
+        '^1^2^3^8^16^24HPX^128^136^144^160'
+        """
+        return ''.join(c if c in string.printable else '^'+str(ord(c))
+                       for c in s)
 
     def __init__(self, **kwargs):
         super(Code128Translation, self).__init__(**kwargs)
@@ -304,6 +307,14 @@ class Code128Translation(Translation):
                 else:
                     return
             return ordinal
+
+
+# translation shortcuts 
+code39 = CharMapTranslation(
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%').translate
+digits = CharMapTranslation('0123456789').translate
+nw7 = CharMapTranslation('0123456789-$:/.+ABCD').translate
+code128 = Code128Translation().translate
 
 
 if __name__=="__main__":
