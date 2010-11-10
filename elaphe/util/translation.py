@@ -7,7 +7,6 @@ symbologies.
 
 """
 
-
 class TranslationError(ValueError):
     """
     Exception raised for errors during translation process.
@@ -166,10 +165,25 @@ class CharMapTranslation(Translation):
                 %dict(char=char, allowed_chars=self.allowed_chars))
         # else
         return self.map.get(char)
-        
+
+
+def cap_escape(s):
+    """
+    Converts string to cap-escaped printables.
+    
+    >>> cap_escape('abcdef')
+    'abcdef'
+    >>> cap_escape('\\1\\2\\3\\10\\20\\30\\110\\120\\130\\200\\210\\220\\240')
+    '^1^2^3^8^16^24HPX^128^136^144^160'
+    """
+    from string import printable
+    return ''.join(c if c in printable else '^'+str(ord(c))
+                   for c in s)
+
 
 class Code128Translation(Translation):
-    """Converts message to code128 ordinals. Accepts cap('^')-escaped non-printables.
+    """
+    Converts message to code128 ordinals. Accepts cap('^')-escaped non-printables.
 
     >>> c128t = Code128Translation()
     >>> c128t # doctest: +ELLIPSIS
@@ -211,6 +225,37 @@ class Code128Translation(Translation):
         self.code = None
 
     def translate_chars(self, chars):
+        """
+        Translates characters according to Code128 rules.
+
+        The method employs internal mode stored in ``code`` instance attribute.
+        
+        >>> c128t = Code128Translation()
+        >>> c128t.code # None
+        >>> c128t.translate_chars(list('^')) # None
+        >>> c128t.translate_chars(list('^^'))
+        62
+
+        # Shift code to A
+        >>> c128t.translate_chars(list('^101'))
+        101
+        >>> c128t.code
+        'A'
+        >>> c128t.translate_chars(list('Z'))
+        58
+
+        # Shift code to B
+        >>> c128t.translate_chars(list('^104'))
+        104
+        >>> c128t.code
+        'B'
+
+        # Shift code to C
+        >>> c128t.translate_chars(list('^99'))
+        99
+        >>> c128t.code
+        'C'
+        """
         if chars[0] == '^':
             if len(chars)==1:
                 # escape in
