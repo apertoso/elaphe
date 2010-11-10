@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Symbology-specific message translations.
+"""
+Symbology-specific message translations.
 
 Tranlation object parforms conversion from message to sequence of
 ordinals, to support alphabets/escape-sequences for individual
@@ -135,7 +136,8 @@ class CharMapTranslation(Translation):
 
     """
     def __init__(self, chars, offset=0, skip_char=None, **kwargs):
-        """Constructor.
+        """
+        Constructor.
 
         Accepts a positional argument ``char``, and two optional
         parameters: ``offset`` and ``skip_char``.
