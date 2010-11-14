@@ -17,6 +17,7 @@ class TranslationError(ValueError):
 
     >>> issubclass(TranslationError, ValueError)
     True
+
     """
     pass
 
@@ -44,7 +45,7 @@ class Translation(object):
     TypeError: This type has no valid translate_chars() implementation.
     
     """
-    # singletons
+    # Symbolic singletons
     class RAISE_ON_ERROR(object): pass
     class IGNORE_ON_ERROR(object): pass
 
@@ -92,6 +93,13 @@ class Translation(object):
                 yield ordinal
     
     def translate_chars(self, chars):
+        """
+        Translates queued sequence of codewords into ordinal.
+
+        Subclass should override this method to implement actual 
+        translation logic.
+
+        """
         return NotImplemented
 
 
@@ -144,6 +152,7 @@ class CharMapTranslation(Translation):
 
         Accepts a positional argument ``char``, and two optional
         parameters: ``offset`` and ``skip_char``.
+
         """
         super(CharMapTranslation, self).__init__(**kwargs)
         self.allowed_chars = chars
@@ -159,6 +168,7 @@ class CharMapTranslation(Translation):
         Performs per-char translation.
 
         Multiple characters in chars are not allowed.
+
         """
         if len(chars)>1:
             raise TranslationError(u'Multiple characters not allowed.')
@@ -216,6 +226,7 @@ class Code128Translation(Translation):
         'abcdef'
         >>> cap_escape('\\1\\2\\3\\10\\20\\30\\110\\120\\130\\200\\210\\220\\240')
         '^1^2^3^8^16^24HPX^128^136^144^160'
+
         """
         return ''.join(c if c in string.printable else '^'+str(ord(c))
                        for c in s)
@@ -260,6 +271,7 @@ class Code128Translation(Translation):
         99
         >>> c128t.code
         'C'
+
         """
         if chars[0] == '^':
             if len(chars)==1:
