@@ -1,10 +1,8 @@
 # coding: utf-8
 # Copyright (c) 2010 Yasushi Masuda. All rights reserved.
-"""
-Various checksum algorithms
+"""Various checksum algorithms
 
 """
-
 
 def modcomp(b, n):
     """
@@ -12,9 +10,22 @@ def modcomp(b, n):
 
     >>> modcomp(1, 1), modcomp(1, 2), modcomp(1, 3), modcomp(2, 1), modcomp(2, 2), modcomp(2, 3)
     (0, 0, 0, 1, 0, 1)
+
     """
     return (b-n%b)%b
 
+
+def modulus_4(ordinals):
+    """
+    modulus 4, used for parity bits in EAN-2.
+    
+    >>> [modulus_4([0, i]) for i in range(10)]
+    [0, 1, 2, 3, 0, 1, 2, 3, 0, 1]
+
+    """
+    return sum(10**(1-i)*ordinal 
+               for i, ordinal in enumerate(ordinals)
+               if i<2)%4
 
 def modulus_43(ordinals):
     """
@@ -22,6 +33,7 @@ def modulus_43(ordinals):
 
     >>> modulus_43(translation.code39('ABCD1234+'))
     11
+
     """
     return sum(ordinals)%43
 
@@ -73,6 +85,7 @@ def modulus_10_w2(ordinals):
 
     >>> modulus_10_w2(translation.digits('938745343'))
     7
+
     """
     return modcomp(
         10, 
@@ -149,8 +162,10 @@ def modulus_103(ordinals):
 
 
 if __name__=='__main__':
-    import sys; sys.path.insert(0, '.')
-    import translation
+    from sys import path
+    from os.path import abspath, dirname
+    sys.path.insert(0, dirname(dirname(abspath('.'))))
+    from elaphe.util import translation
     from doctest import testmod
     testmod()
     
