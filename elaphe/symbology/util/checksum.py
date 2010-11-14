@@ -162,10 +162,7 @@ def modulus_103(ordinals):
 
 
 if __name__=='__main__':
-    from sys import path
-    from os.path import abspath, dirname
-    sys.path.insert(0, dirname(dirname(abspath('.'))))
-    from elaphe.util import translation
+    import translation
     from doctest import testmod
     testmod()
     
