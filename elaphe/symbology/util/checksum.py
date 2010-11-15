@@ -42,15 +42,29 @@ def modulus_10_w3(ordinals):
     """
     Modulus 10, weighted with 3. Used in JAN ITF and NW-7.
 
-    >>> modulus_10_w3(translation.digits('490123456789'))
+    >>> modulus_10_w3(translation.digits('12345678'))
     4
-
+    >>> modulus_10_w3(translation.digits('4912345'))
+    6
     """
     return modcomp(
         10, 
-        sum(ordinal*(1+2*(i%2)) 
-            for i, ordinal in enumerate(ordinals)))
+        sum(ordinal*(1+2*((i+1)%2)) 
+            for i, ordinal in enumerate(reversed(list(ordinals)))))
 
+
+def upc_checksum(ordinals):
+    """
+    UPC-A checksum, kind of modulus10-w3.
+
+    >>> upc_checksum(translation.digits('03600029145'))
+    2
+    """
+    return modcomp(
+        10, 
+        sum(ordinal*(1+2*(i+1%2)) 
+            for i, ordinal in enumerate(ordinals)))
+    
 
 def modulus_16(ordinals):
     """
