@@ -12,15 +12,11 @@ class Symbology(object):
 
     Example usage::
     
-      # >>> s = SomeSymbology(foo_option=42, bar_option='baz')
-      # >>> s.encode('spam eggs')
-      # <some-data-strucute-representing-the-encoded-data>
-    
-    For convenience, giving "default encoder function" is encouraged:
-
-      # >>> encode_somesymbology = SomeSymbology().encode
-      # >>> encode_somesymbology('spam eggs')
-      # <some-data-strucute-representing-the-encoded-data>
+      # >>> s = SomeSymbology('some data', foo_option=42, bar_option='baz')
+      # >>> s.bits
+      # (encoded data bits)
+      # >>> s.checksum
+      # (encoded checksum bits)
 
     """
     DEFAULT_OPTIONS = {}
@@ -35,7 +31,33 @@ class Symbology(object):
         described in DEFAULT_OPTIONS class attribute.
 
         """
-        self.data = data
-        self.options = dict(self.DEFAULT_OPTIONS, **options)
+        self._data = data
+        self._options = dict(self.DEFAULT_OPTIONS, **options)
+        self.encode()
+        
+    def get_data(self):
+        return self._data
+
+    def set_data(self, data):
+        self._data = data
+        self.encode()
+
+    data = property(get_data, set_data)
+
+    def get_options(self):
+        return self._options
+
+    def set_options(self, **options):
+        self._options = options
+        self.encode()
+
+    options = property(get_options, set_options)
+
+    def encode(self):
+        """Do actual encoding work. Subclass should override.
+        """
 
 
+if __name__=="__main__":
+    from doctest import testmod
+    testmod()
