@@ -59,11 +59,15 @@ def upc_checksum(ordinals):
 
     >>> upc_checksum(translation.digits('03600029145'))
     2
+    >>> upc_checksum(translation.digits('06510000432'))
+    7
+    >>> upc_checksum(translation.digits('54300018670'))
+    6
     """
     return modcomp(
         10, 
-        sum(ordinal*(1+2*(i+1%2)) 
-            for i, ordinal in enumerate(ordinals)))
+        sum(ordinal*(1+2*((i+1)%2)) 
+            for i, ordinal in enumerate(list(ordinals))))
     
 
 def modulus_16(ordinals):
