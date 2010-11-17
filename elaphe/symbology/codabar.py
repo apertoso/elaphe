@@ -5,7 +5,7 @@
 import string
 
 from base import Symbology
-from util.translation import nw_7, nw7_tne
+from util.translation import nw7, nw7_tne
 from util.checksum import upc_checksum
 
 
@@ -15,6 +15,7 @@ class Codabar(Symbology):
 
     >>> s1 = Codabar('A1234567890B')
     >>> s1.digits
+    [16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 17]
 
     """
     def encode(self):
@@ -26,9 +27,9 @@ class Codabar(Symbology):
         start/stop alphabets: (A, B, C, D) or (T, N, *, E).
 
         """
-        translation = nw_7
+        translation = nw7
         if any((c in self._data) for c in ['T', 'N', '*', 'E']):
-            translation = nw_7_tne
+            translation = nw7_tne
         self.digits = list(translation(self._data))
 
     @property
@@ -52,3 +53,9 @@ class Codabar(Symbology):
         return {'A': 'a', 'B': 'b', 'C': 'c', 'D': 'd'}[self._data[0]]
 # Codabar is known as NW-7 in Japan.
 NW_7=Codabar
+
+
+if __name__=="__main__":
+    from doctest import testmod
+    testmod()
+
