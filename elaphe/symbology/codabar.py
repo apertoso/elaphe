@@ -18,7 +18,7 @@ class Codabar(Symbology):
 
     """
     def encode(self):
-        """Encodes data into UPC digits.
+        """Encodes data into Codabar digits.
 
         Codabar consists of S...E, where S, E are
         start, end, respectively.
