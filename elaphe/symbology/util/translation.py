@@ -326,6 +326,7 @@ code39 = CharMapTranslation(
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%').translate
 digits = CharMapTranslation('0123456789').translate
 nw7 = CharMapTranslation('0123456789-$:/.+ABCD').translate
+nw7_tne = CharMapTranslation('0123456789-$:/.+TN*E').translate
 code128 = Code128Translation().translate
 
 
