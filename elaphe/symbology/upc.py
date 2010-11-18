@@ -32,8 +32,7 @@ class UPC_A(Symbology):
         """Encodes data into UPC digits.
 
         UPC consists of SLLLLLLMRRRRRCE, where S, M, E, R, L, C are
-        start, middle, end, left, right, checksum.
-        Checksum is 
+        start, middle, end, left, right and checksum respectively.
 
         """
         ordinals = list(digits(self._data))

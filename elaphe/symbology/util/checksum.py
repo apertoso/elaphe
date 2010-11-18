@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) 2010 Yasushi Masuda. All rights reserved.
 """Various checksum algorithms
-
 """
 
 def modcomp(b, n):
@@ -31,8 +30,10 @@ def modulus_43(ordinals):
     """
     Modulus-43, used in Code39.
 
-    >>> modulus_43(translation.code39('ABCD1234+'))
-    11
+    >>> modulus_43([6, 6, 6, 6, 6, 6, 6, 6])
+    5
+    >>> modulus_43([0, 7, 0, 0, 0, 5, 0, 3])
+    15
 
     """
     return sum(ordinals)%43
@@ -74,7 +75,8 @@ def modulus_16(ordinals):
     """
     Modulus 16, used in NW-7. Argument should include start/stop/checkdigit.
   
-    >>> modulus_16(translation.nw7('A19+1243*B'))
+    >>> nw7_ordinals = [16, 1, 9, 15, 1, 2, 4, 3, 17] # 'A19+1243*B'
+    >>> modulus_16(nw7_ordinals)
     12
 
     """

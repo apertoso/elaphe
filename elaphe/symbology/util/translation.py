@@ -10,6 +10,8 @@ symbologies.
 """
 import string
 
+
+# common exception
 class TranslationError(ValueError):
     """
     Exception raised for errors during translation process.
@@ -20,6 +22,22 @@ class TranslationError(ValueError):
 
     """
     pass
+
+
+# mapping utility
+def charmap(chars, offset=0, skip_char=None):
+    """
+    Generate character map for given chars.
+
+    ``offset`` and ``skip_char`` are for non-ordinal alphabets.
+    >>> cm = charmap('0*1*2*3*4', offset=100, skip_char='*')
+    >>> sorted(cm.items()) # doctest: +ELLIPSIS
+    [('*', None), ('0', 100), ('1', 102), ('2', 104), ('3', 106), ('4', 108)]
+
+    """
+    return dict(
+        (char, (idx+offset if char!=skip_char else None))
+        for idx, char in enumerate(chars))
 
 
 class Translation(object):
@@ -61,9 +79,9 @@ class Translation(object):
         """Converts sequence of ordinals to message string.
         """
         self.reset()
-        queue = []
+        queue = ''
         for char in message:
-            queue.append(char)
+            queue += char
             ordinal = None
             try:
                 ordinal = self.translate_chars(queue)
@@ -71,14 +89,14 @@ class Translation(object):
                 if on_error == self.RAISE_ON_ERROR:
                     raise e
                 if on_error == self.IGNORE_ON_ERROR:
-                    queue = []
+                    queue = ''
                 elif on_error is not None:
                     # clear queue, yield replacement and go on
-                    queue = []
+                    queue = ''
                     yield on_error
                 else:
                     # defaults to ignore,
-                    queue = []
+                    queue = ''
             except:
                 raise
             if ordinal is None:
@@ -89,7 +107,7 @@ class Translation(object):
                                 'translate_chars() implementation.')
             else:
                 # clear queue, yield something not None.
-                queue = []
+                queue = ''
                 yield ordinal
     
     def translate_chars(self, chars):
@@ -103,15 +121,15 @@ class Translation(object):
         return NotImplemented
 
 
-class CharMapTranslation(Translation):
+class MapTranslation(Translation):
     """
     Translation using character map.
 
-    >>> cmt = CharMapTranslation('+0123456789')
+    >>> cmt = MapTranslation(charmap('+0123456789'))
     >>> cmt # doctest: +ELLIPSIS
-    <...CharMapTranslation object at ...>
+    <...MapTranslation object at ...>
 
-    ``CharMapTranslation.map`` indicates internal translation map.
+    ``MapTranslation.map`` represents the internal translation map.
     >>> sorted(cmt.map.items()) # doctest: +ELLIPSIS
     [('+', 0), ('0', 1), ... ('8', 9), ('9', 10)]
 
@@ -127,7 +145,7 @@ class CharMapTranslation(Translation):
     >>> list(cmt.translate('1234xx', on_error=Translation.RAISE_ON_ERROR))
     Traceback (most recent call last):
     ...
-    TranslationError: x not in allowed chars: +0123456789
+    TranslationError: x not in allowed chars: ['+', '1', '0', '3', '2', '5', '4', '7', '6', '9', '8']
 
     Explicit IGNORE_ON_ERROR behave same as default.
     >>> list(cmt.translate('1234xx', on_error=Translation.IGNORE_ON_ERROR))
@@ -137,15 +155,8 @@ class CharMapTranslation(Translation):
     >>> list(cmt.translate('1234xx', on_error='#'))
     [2, 3, 4, 5, '#', '#']
 
-    ``offset`` and ``skip_char`` are for non-ordinal alphabets.
-    >>> cmt = CharMapTranslation('0*1*2*3*4', offset=100, skip_char='*')
-    >>> sorted(cmt.map.items()) # doctest: +ELLIPSIS
-    [('0', 100), ('1', 102), ('2', 104), ('3', 106), ('4', 108)]
-    >>> list(cmt.translate('2413'))
-    [104, 108, 102, 106]
-
     """
-    def __init__(self, chars, offset=0, skip_char=None, 
+    def __init__(self, map_, min_chars=1, max_chars=1, extra_map=None,
                  **kwargs):
         """
         Constructor.
@@ -154,14 +165,12 @@ class CharMapTranslation(Translation):
         parameters: ``offset`` and ``skip_char``.
 
         """
-        super(CharMapTranslation, self).__init__(**kwargs)
-        self.allowed_chars = chars
-        if skip_char:
-            self.allowed_chars.replace(skip_char, '')
-        self.map = dict(
-            (char, idx+offset) 
-            for idx, char in enumerate(chars) 
-            if char!=skip_char)
+        super(MapTranslation, self).__init__(**kwargs)
+        self.min_chars, self.max_chars = min_chars, max_chars
+        self.map = map_
+        self.allowed_chars = map_.keys()
+        if extra_map:
+            self.map.update(extra_map)
 
     def translate_chars(self, chars):
         """
@@ -170,16 +179,16 @@ class CharMapTranslation(Translation):
         Multiple characters in chars are not allowed.
 
         """
-        if len(chars)>1:
-            raise TranslationError(u'Multiple characters not allowed.')
-        # else
-        char = chars[0]
-        if char not in self.map:
-            raise TranslationError(
-                u'%(char)s not in allowed chars: %(allowed_chars)s' 
-                %dict(char=char, allowed_chars=self.allowed_chars))
-        # else
-        return self.map.get(char)
+        if len(chars)<self.min_chars:
+            return
+        elif len(chars)>self.max_chars:
+            raise TranslationError(u'Unable to translate chars: %s.' %chars)
+        else:
+            if chars not in self.allowed_chars:
+                raise TranslationError(
+                    u'%(chars)s not in allowed chars: %(allowed_chars)s' 
+                    %dict(chars=chars, allowed_chars=self.allowed_chars))
+            return self.map.get(chars)
 
 
 class Code128Translation(Translation):
@@ -273,13 +282,13 @@ class Code128Translation(Translation):
         'C'
 
         """
-        if chars[0] == '^':
+        if chars[0]=='^':
             if len(chars)==1:
                 # escape in
                 return
             else:
                 # escaped already
-                if chars[1] == '^':
+                if chars[1]=='^':
                     return 62
                 else:
                     escaped = ''.join(chars[1:])
@@ -321,12 +330,8 @@ class Code128Translation(Translation):
             return ordinal
 
 
-# translation shortcuts 
-code39 = CharMapTranslation(
-    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%').translate
-digits = CharMapTranslation('0123456789').translate
-nw7 = CharMapTranslation('0123456789-$:/.+ABCD').translate
-nw7_tne = CharMapTranslation('0123456789-$:/.+TN*E').translate
+# common translation shortcuts 
+digits = MapTranslation(charmap('0123456789')).translate
 code128 = Code128Translation().translate
 
 

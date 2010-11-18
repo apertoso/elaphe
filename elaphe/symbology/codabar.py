@@ -5,8 +5,13 @@
 import string
 
 from base import Symbology
-from util.translation import nw7, nw7_tne
+from util.translation import charmap, MapTranslation
 from util.checksum import upc_checksum
+
+
+codabar_map = MapTranslation(
+    charmap('0123456789-$:/.+ABCD'),
+    extra_map=dict(zip(list('TN*E'), range(16,20)))).translate
 
 
 class Codabar(Symbology):
@@ -16,6 +21,8 @@ class Codabar(Symbology):
     >>> s1 = Codabar('A1234567890B')
     >>> s1.digits
     [16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 17]
+    >>> s1.start_char, s1.end_char
+    ('A', 'B')
 
     """
     def encode(self):
@@ -23,34 +30,16 @@ class Codabar(Symbology):
 
         Codabar consists of S...E, where S, E are
         start, end, respectively.
-        There are two types of codemap, which varies
-        start/stop alphabets: (A, B, C, D) or (T, N, *, E).
 
         """
-        translation = nw7
-        if any((c in self._data) for c in ['T', 'N', '*', 'E']):
-            translation = nw7_tne
-        self.digits = list(translation(self._data))
+        self.start_char, self.end_char = None, None
+        if self._data:
+            if self._data[0] in 'ABCDTN*E':
+                self.start_char = self._data[0] 
+            if self._data[-1] in 'ABCDTN*E':
+                self.end_char = self._data[-1]
+        self.digits = list(codabar_map(self._data))
 
-    @property
-    def label_type(self):
-        """
-        Returns label type of the code.
-
-        Codabar uses different start/stop code pairs between label types
-        as follows:
-        
-          +------+-------+-----+
-          | Type | Start | End |
-          +------+-------+-----+
-          |  a   |   A   |  T  |
-          |  b   |   B   |  N  |
-          |  c   |   C   |  *  |
-          |  d   |   D   |  E  |
-          +------+-------+-----+
-
-        """
-        return {'A': 'a', 'B': 'b', 'C': 'c', 'D': 'd'}[self._data[0]]
 # Codabar is known as NW-7 in Japan.
 NW_7=Codabar
 
