@@ -3,6 +3,7 @@
 """Various checksum algorithms
 """
 
+
 def modcomp(b, n):
     """
     Computes complemented modulus (b, n).
@@ -14,117 +15,95 @@ def modcomp(b, n):
     return (b-n%b)%b
 
 
-def modulus_4(ordinals):
-    """
-    modulus 4, used for parity bits in EAN-2.
-    
-    >>> [modulus_4([0, i]) for i in range(10)]
-    [0, 1, 2, 3, 0, 1, 2, 3, 0, 1]
+class Modulus(object):
+    """Simple factory for modulus N functions
 
-    """
-    return sum(10**(1-i)*ordinal 
-               for i, ordinal in enumerate(ordinals)
-               if i<2)%4
-
-def modulus_43(ordinals):
-    """
-    Modulus-43, used in Code39.
-
-    >>> modulus_43([6, 6, 6, 6, 6, 6, 6, 6])
-    5
-    >>> modulus_43([0, 7, 0, 0, 0, 5, 0, 3])
-    15
-
-    """
-    return sum(ordinals)%43
-
-
-def modulus_10_w3(ordinals):
-    """
-    Modulus 10, weighted with 3. Used in JAN ITF and NW-7.
-
-    >>> modulus_10_w3(translation.digits('12345678'))
-    4
-    >>> modulus_10_w3(translation.digits('4912345'))
-    6
-    """
-    return modcomp(
-        10, 
-        sum(ordinal*(1+2*((i+1)%2)) 
-            for i, ordinal in enumerate(reversed(list(ordinals)))))
-
-
-def upc_checksum(ordinals):
-    """
-    UPC-A checksum, kind of modulus10-w3.
-
-    >>> upc_checksum(translation.digits('03600029145'))
-    2
-    >>> upc_checksum(translation.digits('06510000432'))
-    7
-    >>> upc_checksum(translation.digits('54300018670'))
-    6
-    """
-    return modcomp(
-        10, 
-        sum(ordinal*(1+2*((i+1)%2)) 
-            for i, ordinal in enumerate(list(ordinals))))
-    
-
-def modulus_16(ordinals):
-    """
-    Modulus 16, used in NW-7. Argument should include start/stop/checkdigit.
-  
-    >>> nw7_ordinals = [16, 1, 9, 15, 1, 2, 4, 3, 17] # 'A19+1243*B'
-    >>> modulus_16(nw7_ordinals)
-    12
-
-    """
-    return modcomp(16, sum(ordinals))
-
-
-def modulus_11(ordinals):
-    """
-    Modulus 11, used in NW-7. Argucment should exclude start/stop.
-
-    >>> modulus_11(translation.digits('2431245*'))
-    6
-    
-    """
-    return modcomp(
-        11, 
-        sum(ordinal*(7-i) 
-            for i, ordinal in enumerate(ordinals)
-            if i<6))
-
-
-def modulus_10_w2(ordinals):
-    """
-    Modulus 10, weighted with 2. Used in NW-7. 
-    Argument should exclude start/stop/checkdigit.
-
-    >>> modulus_10_w2(translation.digits('938745343'))
-    7
-
-    """
-    return modcomp(
-        10, 
-        sum(ordinal*(2-(i%2)) 
-            for i, ordinal in enumerate(ordinals)))
-
-
-def check_dr_7(ordinals):
-    """
-    7-check DR checkdigit, used in NW-7. 
-    Argument should exclude start/stop/checkdigit.
-
-    >>> check_dr_7(translation.digits('8745343'))
+    >>> mod43 = Modulus(43)
+    >>> mod43([6]*8)
     5
 
     """
-    return sum(
-        (10**(6-i)*ordinal)
-        for i, ordinal in enumerate(ordinals) if i<7)%7
+    def __init__(self, modulo, weight_func=None, complement=False):
+        self.modulo = modulo
+        self.complement = complement
+        self.weight_func = weight_func
+    
+    def __call__(self, ordinals):
+        ordinals = list(ordinals)
+        if self.weight_func:
+            weights = self.weight_func(ordinals)
+        else:
+            weights = [1]*len(ordinals)
+        ret = sum(o*w for o, w in zip(ordinals, weights))%self.modulo
+        if self.complement:
+            ret = (self.modulo-ret)%self.modulo
+        return ret
+
+
+check_dr_7 = Modulus(7, weight_func=(lambda os: [(10**(6-i) if i<7 else 0) for i in range(len(os))]))
+modulus_4 = Modulus(4, weight_func=(lambda os: [(int(10**(i-1)) if i<2 else 1) for i in range(len(os))]))
+modulus_10_w3 = Modulus(10, weight_func=(lambda os: [(1+2*((i+1)%2)) for i in range(len(os))[::-1]]), complement=True)
+modulus_10_w2 = Modulus(10, weight_func=(lambda os: [(2-(i%2)) for i in range(len(os))]), complement=True)
+modulus_11 = Modulus(11, weight_func=(lambda os: [((7-i) if i<6 else 0) for i in range(len(os))]), complement=True)
+modulus_16 = Modulus(16, complement=True)
+modulus_43 = Modulus(43)
+modulus_47 = Modulus(47, weight_func=(lambda os: range(1, len(os)+1)[::-1])) # Untested!
+modulus_103 = Modulus(103, weight_func=(lambda os: [max(i, 1) for i in range(len(os))]))
+upc_checksum = Modulus(10, weight_func=(lambda os: [(1+2*((i+1)%2)) for i in range(len(os))]), complement=True)
+
+
+__test__= {'Modulus instances': """
+Modulus 16, used in NW-7. Argument should include start/stop/checkdigit.
+
+>>> nw7_ordinals = [16, 1, 9, 15, 1, 2, 4, 3, 17] # 'A19+1243*B'
+>>> modulus_16(nw7_ordinals)
+12
+
+modulus 4, used for parity bits in EAN-2.
+
+>>> [modulus_4([0, i]) for i in range(10)]
+[0, 1, 2, 3, 0, 1, 2, 3, 0, 1]
+
+Modulus 10, weighted with 3. Used in JAN ITF and NW-7.
+
+>>> modulus_10_w3(translation.digits('12345678'))
+4
+>>> modulus_10_w3(translation.digits('4912345'))
+6
+
+Modulus 103, used in code128. 
+Code should include start char and exclude stop char.
+
+>>> modulus_103([41, 41, 41, 41, 41]) # (41+41+82+123+164)%103
+39
+
+7-check DR checkdigit, used in NW-7. 
+Argument should exclude start/stop/checkdigit.
+
+>>> check_dr_7(translation.digits('8745343'))
+5
+
+Modulus 10, weighted with 2. Used in NW-7. 
+Argument should exclude start/stop/checkdigit.
+
+>>> modulus_10_w2(translation.digits('938745343'))
+7
+
+Modulus 11, used in NW-7. Argucment should exclude start/stop.
+
+>>> modulus_11(translation.digits('2431245*'))
+6
+    
+UPC-A checksum, kind of modulus10-w3.
+
+>>> upc_checksum(translation.digits('03600029145'))
+2
+>>> upc_checksum(translation.digits('06510000432'))
+7
+>>> upc_checksum(translation.digits('54300018670'))
+6
+
+"""}
 
 
 def weighted_modulus_11(ordinals):
@@ -167,22 +146,7 @@ def runes(ordinals):
             for i, ordinal in enumerate(ordinals)))
 
 
-def modulus_103(ordinals):
-    """
-    Modulus 103, used in code128. 
-    Code should include start char and exclude stop char.
-
-    >>> modulus_103(translation.code128('^105^102123456^100A1'))
-    35
-
-    """
-    return sum(
-        (ordinal if i==0 else i*ordinal)
-        for i, ordinal in enumerate(ordinals))%103
-
-
 if __name__=='__main__':
     import translation
     from doctest import testmod
     testmod()
-    
