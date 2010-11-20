@@ -9,81 +9,69 @@ from util.translation import charmap, Translation, TranslationError, MapTranslat
 from util.checksum import modulus_43
 
 
-code39_map = MapTranslation(
-    charmap('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*')).translate
+_code39_charmap = charmap('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*')
+code39_map = MapTranslation(_code39_charmap, skip_char='_').translate
 
+def _code39_full_ascii_map():
+    """Full ASCII map for Code39 extended encoding.
 
-class FullAsciiCode39Translation(Translation):
+    >>> from pprint import pprint
+    >>> pprint(_code39_full_ascii_map())
     """
-    Translates full-ascii encoded code39 characters.
-    
-    >>> t = FullAsciiCode39Translation()
-    >>> ordinals = list(t.translate('ABCD%A%B%C%D'))
-    >>> ordinals, [chr(o) for o in ordinals]
-    ([65, 66, 67, 68, 27, 28, 29, 30], ['A', 'B', 'C', 'D', '\\x1b', '\\x1c', '\\x1d', '\\x1e'])
+    full_ascii_code_groups = (
+        ('%', 'U'),
+        ('$', string.ascii_uppercase),
+        ('%', 'ABCDE'),
+        ('', ' '),
+        ('/', 'ABCDEFGHIJKL'),
+        ('', '-.'),
+        ('/', 'O'),
+        ('', '0123456789'),
+        ('/', 'Z'),
+        ('%', 'FGHIJV'),
+        ('', string.ascii_uppercase),
+        ('%', 'KLMNOW'),
+        ('+', string.ascii_uppercase),
+        ('%', 'PQRST'))
+    return map(lambda s: tuple(_code39_charmap[c] for c in s),
+               reduce(list.__add__, 
+                      ([p+c for c in s] 
+                       for p, s in full_ascii_code_groups)))
 
-    """
-    CODE_GROUPS = (('%', 'U'),
-                   ('$', string.ascii_uppercase),
-                   ('%', 'ABCDE'),
-                   ('', ' '),
-                   ('/', 'ABCDEFGHIJKL'),
-                   ('', '-.'),
-                   ('/', 'O'),
-                   ('', '0123456789'),
-                   ('/', 'Z'),
-                   ('%', 'FGHIJV'),
-                   ('', string.ascii_uppercase),
-                   ('%', 'KLMNOW'),
-                   ('+', string.ascii_uppercase),
-                   ('%', 'PQRST'))
-    EXTRA_CODES = dict(('%'+c, 127) for c in 'XYZ')
-    ENCODING_TABLE = dict(
-        (code, ordinal)
-        for ordinal, code in enumerate(
-            reduce(list.__add__, ([p+c for c in s] 
-                                  for p, s in CODE_GROUPS))))
-    ENCODING_TABLE.update(EXTRA_CODES)
-
-    def translate_chars(self, chars):
-        """
-        """
-        if len(chars)>2:
-            raise TranslationError
-        else:
-            return self.ENCODING_TABLE.get(''.join(chars), None)
-full_ascii_code39_map=FullAsciiCode39Translation().translate
-
-
-            
+code39_full_ascii_map = MapTranslation(
+    charmap([chr(i) for i in range(128)],
+            _code39_full_ascii_map())).translate
+del _code39_charmap, _code39_full_ascii_map
+   
 
 class Code39(Symbology):
     """
     The Code39 symbology.
 
-    >>> s1 = Code39('ABC12345')
+    >>> s1 = Code39('ABC123+/')
     >>> s1.digits
-    [10, 11, 12, 1, 2, 3, 4, 5]
+    [10, 11, 12, 1, 2, 3, 41, 40]
     >>> s1.checksum
-    5
+    34
+    >>> s2 = Code39('ABC123+/', code_map='full_ascii')
+    >>> s2.digits
+    [10, 11, 12, 1, 2, 3, 40, 20, 40, 24]
 
     """
+    def __init__(self, data, code_map=None, **options):
+        if code_map=='full_ascii':
+            self.code_map = code39_full_ascii_map
+        elif code_map in ['basic', None]:
+            self.code_map = code39_map
+        else:
+            raise ValueError(u'Unsupported code map type.')
+        super(Code39, self).__init__(data, **options)
+                            
     def encode(self):
         """Encodes data into ITF digits.
         """
         # always strip start/end character.
-        self.digits = list(code39_map(self._data.strip('*')))
-        self.checksum = modulus_43(self.digits)
-
-
-class FullAsciiCode39(Code39):
-    """
-    """
-    def encode(self):
-        """Encodes (full-ascii encoded) data into ITF digits.
-        """
-        # always strip start/end character.
-        self.digits = list(full_ascii_code39_map(self._data.strip('*')))
+        self.digits = list(self.code_map(self._data.strip('*')))
         self.checksum = modulus_43(self.digits)
 
 
