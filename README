@@ -2,11 +2,7 @@
 Elaphe
 ======
 
-Elaphe is a pythonic barcode generator package. Currently the main
-feature of the packpage is a wrapper around the Barcode Writer In
-Pure PostScript (http://www.terryburton.co.uk/barcodewriter/).
-Elaphe requires Python Imaging Library and Ghostscript to render
-internally-generated PostScript code.
+Elaphe is a pythonic barcode generator package.
 
 Requirements
 ============
@@ -14,24 +10,7 @@ Requirements
 * Python 2.5 or later (functional decorators, ternary operator, and 
   generator expressions are used).
 
-* If you want to render the generated barcode, Python Imaging Library
-  (http://www.pythonware.com/products/pil) is required under the
-  condition that EpsImagePlugin is enabled (i.e. at least you must
-  have Ghostscript is installed and callable from PIL).
-
 Simple Usage
 ============
 
-The following example::
-
-  >>> from elaphe.bwipp import barcode
-  >>> barcode('qrcode',
-  ...         'Hello Barcode Writer In Pure PostScript.',
-  ...         options=dict(version=9, eclevel='M'), 
-  ...         margin=10, data_mode='8bits') # Generates PIL.EpsImageFile instance
-  <PIL.EpsImagePlugin.EpsImageFile instance at ...>
-  >>> _.show()            # Show the image
-
-should invoke default viewer which shows a QRcode symbol with 10px margin.
-
-Remember, barcode() returns a PIL image object.
+TBA
