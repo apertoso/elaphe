@@ -1,62 +1,54 @@
 # coding: utf-8
 """Copyright (c) 2010 Yasushi Masuda. All rights reserved.
 """
-
+from reportlab.lib import colors
 
 class Symbology(object):
     """
     aAbstract base class for symbologies.
 
-    The DEFAULT_OPTIONS class attributes are used default value for
-    ``options`` instance attribute. Subclass may override it.
-
-    Example usage::
-    
-      # >>> s = SomeSymbology('some data', foo_option=42, bar_option='baz')
-      # >>> s.bits
-      # (encoded data bits)
-      # >>> s.checksum
-      # (encoded checksum bits)
+    >>> s = Symbology()
+    >>> s # doctest: +ELLIPSIS
+    <Symbology object at ...>
+    >>> s.background_color==None
+    True
+    >>> s = Symbology(background_color=colors.black)
+    >>> s.dpi, s.background_color
+    (72.0, Color(0,0,0,1))
 
     """
-    DEFAULT_OPTIONS = {}
     
-    def __init__(self, data, **options):
+    def __init__(self, dpi=72.0, background_color=None):
+        """Constructor
         """
-        Constructor.
+        self.dpi = dpi
+        self.background_color=background_color
 
-        Takes arbitrary number of keyword arguments.
-        All keyword arguments are passed to ``options`` instance
-        attribute to update encoding options, those defaults to value
-        described in DEFAULT_OPTIONS class attribute.
+    def __repr__(self):
+        return '<%s object at %x>' %(self.__class__.__name__, id(self))
 
-        """
-        self._data = data
-        self._options = dict(self.DEFAULT_OPTIONS, **options)
-        self.encode()
-        
-    def get_data(self):
-        return self._data
+    def generate(self, data, options):
+        return NotImplemented
 
-    def set_data(self, data):
-        self._data = data
-        self.encode()
 
-    data = property(get_data, set_data)
+class LinearBarSymbology(Symbology):
+    """
+    >>> s = LinearBarSymbology()
+    >>> s # doctest: +ELLIPSIS
+    <LinearBarSymbology object at ...>
+    >>> s.background_color, s.bar_height, s.bar_color
+    (None, 1.0, Color(0,0,0,1))
+    >>> s = LinearBarSymbology(bar_height=0.5, bar_color=colors.red)
+    >>> s.background_color, s.bar_height, s.bar_color
+    (None, 0.5, Color(1,0,0,1))
 
-    def get_options(self):
-        return self._options
-
-    def set_options(self, **options):
-        self._options = options
-        self.encode()
-
-    options = property(get_options, set_options)
-
-    def encode(self):
-        """Do actual encoding work. Subclass should override.
-        """
-
+    """
+    
+    def __init__(self, bar_height=1.0, bar_color=colors.black, **kwargs):
+        super(LinearBarSymbology, self).__init__(**kwargs)
+        self.bar_height = bar_height
+        self.bar_color = bar_color
+    
 
 if __name__=="__main__":
     from doctest import testmod

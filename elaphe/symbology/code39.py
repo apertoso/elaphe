@@ -44,35 +44,35 @@ code39_full_ascii_map = MapTranslation(
 del _code39_charmap, _code39_full_ascii_map
    
 
-class Code39(Symbology):
-    """
-    The Code39 symbology.
+# class Code39(Symbology):
+#     """
+#     The Code39 symbology.
 
-    >>> s1 = Code39('ABC123+/')
-    >>> s1.digits
-    [10, 11, 12, 1, 2, 3, 41, 40]
-    >>> s1.checksum
-    34
-    >>> s2 = Code39('ABC123+/', code_map='full_ascii')
-    >>> s2.digits
-    [10, 11, 12, 1, 2, 3, 40, 20, 40, 24]
+#     >>> s1 = Code39('ABC123+/')
+#     >>> s1.digits
+#     [10, 11, 12, 1, 2, 3, 41, 40]
+#     >>> s1.checksum
+#     34
+#     >>> s2 = Code39('ABC123+/', code_map='full_ascii')
+#     >>> s2.digits
+#     [10, 11, 12, 1, 2, 3, 40, 20, 40, 24]
 
-    """
-    def __init__(self, data, code_map=None, **options):
-        if code_map=='full_ascii':
-            self.code_map = code39_full_ascii_map
-        elif code_map in ['basic', None]:
-            self.code_map = code39_map
-        else:
-            raise ValueError(u'Unsupported code map type.')
-        super(Code39, self).__init__(data, **options)
+#     """
+#     def __init__(self, data, code_map=None, **options):
+#         if code_map=='full_ascii':
+#             self.code_map = code39_full_ascii_map
+#         elif code_map in ['basic', None]:
+#             self.code_map = code39_map
+#         else:
+#             raise ValueError(u'Unsupported code map type.')
+#         super(Code39, self).__init__(data, **options)
                             
-    def encode(self):
-        """Encodes data into ITF digits.
-        """
-        # always strip start/end character.
-        self.digits = list(self.code_map(self._data.strip('*')))
-        self.checksum = modulus_43(self.digits)
+#     def encode(self):
+#         """Encodes data into ITF digits.
+#         """
+#         # always strip start/end character.
+#         self.digits = list(self.code_map(self._data.strip('*')))
+#         self.checksum = modulus_43(self.digits)
 
 
 if __name__=="__main__":

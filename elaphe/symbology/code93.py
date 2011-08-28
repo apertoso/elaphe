@@ -46,35 +46,35 @@ code93_full_ascii_map = MapTranslation(
 # del _code93_charmap, _code93_full_ascii_map
    
 
-class Code93(Symbology):
-    """
-    The Code93 symbology.
+# class Code93(Symbology):
+#     """
+#     The Code93 symbology.
 
-    >>> s1 = Code93('ABC123+/')
-    >>> s1.digits
-    [10, 11, 12, 1, 2, 3, 41, 40]
-    >>> s1.checksum
-    34
-    >>> s2 = Code93('ABC123+/', code_map='full_ascii')
-    >>> s2.digits
-    [10, 11, 12, 1, 2, 3, 45, 20, 45, 24]
+#     >>> s1 = Code93('ABC123+/')
+#     >>> s1.digits
+#     [10, 11, 12, 1, 2, 3, 41, 40]
+#     >>> s1.checksum
+#     34
+#     >>> s2 = Code93('ABC123+/', code_map='full_ascii')
+#     >>> s2.digits
+#     [10, 11, 12, 1, 2, 3, 45, 20, 45, 24]
 
-    """
-    def __init__(self, data, code_map=None, **options):
-        if code_map=='full_ascii':
-            self.code_map = code93_full_ascii_map
-        elif code_map in ['basic', None]:
-            self.code_map = code93_map
-        else:
-            raise ValueError(u'Unsupported code map type.')
-        super(Code93, self).__init__(data, **options)
+#     """
+#     def __init__(self, data, code_map=None, **options):
+#         if code_map=='full_ascii':
+#             self.code_map = code93_full_ascii_map
+#         elif code_map in ['basic', None]:
+#             self.code_map = code93_map
+#         else:
+#             raise ValueError(u'Unsupported code map type.')
+#         super(Code93, self).__init__(data, **options)
                             
-    def encode(self):
-        """Encodes data into ITF digits.
-        """
-        # always strip start/end character.
-        self.digits = list(self.code_map(self._data.strip('*')))
-        self.checksum = modulus_43(self.digits)
+#     def encode(self):
+#         """Encodes data into ITF digits.
+#         """
+#         # always strip start/end character.
+#         self.digits = list(self.code_map(self._data.strip('*')))
+#         self.checksum = modulus_43(self.digits)
 
 
 if __name__=="__main__":
