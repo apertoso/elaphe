@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-import os
+import sys, os
 from os.path import abspath, dirname, join as pathjoin
 from setuptools import setup
 
-import sys
-sys.path.insert(0, dirname(abspath(__file__)))
-version = '.'.join(str(vn) for vn in __import__('elaphe').__version__)
+sys.path.insert(0, abspath('./tests'))
+sys.path.insert(0, abspath('./elaphe'))
+
+import elaphe
+
+version = '.'.join(map(str, elaphe.__version__))
 
 install_requires = ['setuptools', 'PIL']
 test_requires = []
@@ -19,12 +22,11 @@ setup_params = dict(
     name="elaphe",
     version=version,
     packages=['elaphe'],
-    exclude_package_data={'elaphe.bwipp': ['postscriptbarcode']},
-    package_data={'elaphe.bwipp': ['postscriptbarcode/barcode.ps', 'postscriptbarcode/LICENSE']},
+    exclude_package_data={'elaphe': ['postscriptbarcode']},
+    package_data={'elaphe': ['postscriptbarcode/barcode.ps', 'postscriptbarcode/LICENSE']},
     zip_safe=False,
     dependency_links = ["http://dist.repoze.org"], #PIL as egg
     install_requires = install_requires,
-    test_suite = 'tests.build_tests',
     tests_require=test_requires,
     extras_require=extra_requires,
     classifiers=[
@@ -45,6 +47,7 @@ setup_params = dict(
     url = "http://elaphe.googlecode.com",
     download_url = "http://code.google.com/p/elaphe/downloads/list",
     # entry_points = {'console_scripts': ['elaphe = elaphe.:main']},
+    test_suite = 'runner',
 )
 
 setup(**setup_params)
