@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 class Symbol(Barcode):
     """
@@ -17,7 +17,9 @@ class Symbol(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (fima) () symbol barcode
+    <66696d61>
+    <>
+    /symbol /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>

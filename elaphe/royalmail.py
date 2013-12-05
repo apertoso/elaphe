@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 class RoyalMail(Barcode):
     """
@@ -17,13 +17,15 @@ class RoyalMail(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (LE28HS9Z) () royalmail barcode
+    <4c4532384853395a>
+    <>
+    /royalmail /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>
     >>> bc.render('LE28HS9Z', options=dict(includetext=False), scale=2, margin=1) # doctest: +ELLIPSIS
     <PIL.EpsImagePlugin.EpsImageFile ... at ...>
-    >>> #_.show()
+    >>> # _.show()
     """
     codetype = 'royalmail'
     aliases = ('royal mail', 'royal-mail', 'royal_mail', 'rm4scc')

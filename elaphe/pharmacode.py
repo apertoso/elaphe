@@ -1,6 +1,6 @@
 # coding: utf-8
 import re, math
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 class Phamacode(Barcode):
     """
@@ -19,7 +19,9 @@ class Phamacode(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (117480) () pharmacode barcode
+    <313137343830>
+    <>
+    /pharmacode /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>

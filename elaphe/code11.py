@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 
 class Code11(Barcode):
@@ -18,7 +18,9 @@ class Code11(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (0123456789) () code11 barcode
+    <30313233343536373839>
+    <>
+    /code11 /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>

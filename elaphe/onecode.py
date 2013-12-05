@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 class OneCode(Barcode):
     """
@@ -17,7 +17,9 @@ class OneCode(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (0123456709498765432101234567891) () onecode barcode
+    <30313233343536373039343938373635343332313031323334353637383931>
+    <>
+    /onecode /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>

@@ -1,27 +1,29 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 class PostNet(Barcode):
     """
     >>> bc = PostNet()
     >>> bc # doctest: +ELLIPSIS
     <....PostNet object at ...>
-    >>> print bc.render_ps_code('012345') # doctest: +ELLIPSIS
+    >>> print bc.render_ps_code('12345123412') # doctest: +ELLIPSIS
     %!PS-Adobe-2.0
     %%Pages: (attend)
     %%Creator: Elaphe powered by barcode.ps
-    %%BoundingBox: 0 0 123 9
+    %%BoundingBox: 0 0 206 9
     %%LanguageLevel: 2
     %%EndComments
     ...
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (012345) () postnet barcode
+    <3132333435313233343132>
+    <>
+    /postnet /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>
-    >>> bc.render('012345', options=dict(includetext=True), scale=2, margin=1) # doctest: +ELLIPSIS
+    >>> bc.render('12345123412', options=dict(includecheckintext=True, includetext=True), scale=2, margin=1) # doctest: +ELLIPSIS
     <PIL.EpsImagePlugin.EpsImageFile ... at ...>
     >>> # _.show()
     """

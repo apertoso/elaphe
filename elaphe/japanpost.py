@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 
 class JapanPost(Barcode):
@@ -18,13 +18,15 @@ class JapanPost(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (1231FZ13XHS) () japanpost barcode
+    <31323331465a3133584853>
+    <>
+    /japanpost /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>
     >>> bc.render('1231FZ13XHS', options=dict(includetext=False), scale=2, margin=1) # doctest: +ELLIPSIS
     <PIL.EpsImagePlugin.EpsImageFile ... at ...>
-    >>> #_.show()
+    >>> # _.show()
     """
     codetype = 'japanpost'
     aliases = ()

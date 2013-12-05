@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 
 class Interleaved2of5(Barcode):
@@ -18,7 +18,9 @@ class Interleaved2of5(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (24012345678905) () interleaved2of5 barcode
+    <3234303132333435363738393035>
+    <>
+    /interleaved2of5 /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>

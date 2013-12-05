@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 
 class RationalizedCodabar(Barcode):
@@ -18,11 +18,13 @@ class RationalizedCodabar(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (A0123456789B) () rationalizedCodabar barcode
+    <413031323334353637383942>
+    <>
+    /rationalizedCodabar /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>
-    >>> bc.render('A0123456789B', options=dict(includetext=None, includecheck=None), scale=2, margin=10) # doctest: +ELLIPSIS
+    >>> bc.render('A0123456789B', options=dict(includecheck=True, includetext=True, includecheckintext=True), scale=2, margin=10) # doctest: +ELLIPSIS
     <PIL.EpsImagePlugin.EpsImageFile ... at ...>
     >>> # _.show()
     """

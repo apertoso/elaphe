@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 
 class Kix(Barcode):
@@ -18,7 +18,9 @@ class Kix(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (1231FZ13XHS) () kix barcode
+    <31323331465a3133584853>
+    <>
+    /kix /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>

@@ -1,5 +1,5 @@
 # coding: utf-8
-from bases import Barcode, LinearCodeRenderer, DPI
+from base import Barcode, LinearCodeRenderer, DPI
 
 
 class UpcA(Barcode):
@@ -18,7 +18,9 @@ class UpcA(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (78858101497) () upca barcode
+    <3738383538313031343937>
+    <>
+    /upca /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>
@@ -66,7 +68,9 @@ class UpcE(Barcode):
     gsave
     0 0 moveto
     1.000000 1.000000 scale
-    (0123456) () upce barcode
+    <30313233343536>
+    <>
+    /upce /uk.co.terryburton.bwipp findresource exec
     grestore
     showpage
     <BLANKLINE>
