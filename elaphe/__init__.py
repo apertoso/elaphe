@@ -11,7 +11,7 @@ DEFAULT_PLUGINS = [
     'elaphe.postnet', 'elaphe.royalmail', 'elaphe.auspost', 'elaphe.kix',
     'elaphe.japanpost', 'elaphe.msi', 'elaphe.plessey', 'elaphe.raw',
     'elaphe.symbol', 'elaphe.pdf417', 'elaphe.datamatrix', 'elaphe.qrcode',
-    'elaphe.maxicode', 'elaphe.azteccode']
+    'elaphe.maxicode', 'elaphe.azteccode', 'elaphe.gs1-128']
 
 if __name__=="__main__":
     DEFAULT_PLUGINS = [s.replace('elaphe.', '') for s in DEFAULT_PLUGINS]
@@ -40,6 +40,10 @@ def barcode(codetype, codestring, options=None, **kw):
     <PIL.EpsImagePlugin.EpsImageFile ...>
     >>> # _.show()
     >>> barcode('code128', '^104^102Count^0990123456789^101!', 
+    ...         options=dict(includetext=True), scale=2, margin=1) # doctest: +ELLIPSIS
+    <PIL.EpsImagePlugin.EpsImageFile ...>
+    >>> # _.show()
+    >>> barcode('gs1-128', '^104^102Count^0990123456789^101!',
     ...         options=dict(includetext=True), scale=2, margin=1) # doctest: +ELLIPSIS
     <PIL.EpsImagePlugin.EpsImageFile ...>
     >>> # _.show()
